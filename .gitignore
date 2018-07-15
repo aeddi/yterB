@@ -4,6 +4,9 @@
 *.so
 *.a
 a.out
+*/output/darwin*
+*/output/linux*
+*/output/windows*
 
 # Misc #
 ########
@@ -15,6 +18,10 @@ a.out
 *.swp
 *.swo
 *~
+bind_darwin*
+bind_linux*
+bind_windows*
+windows.syso
 
 # Logs and databases #
 ######################

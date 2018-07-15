@@ -1,0 +1,6 @@
+{
+  "app_name": "Berty POC",
+  "icon_path_darwin": "resources/icons/icon.icns",
+  "icon_path_linux": "resources/icons/icon.png",
+  "icon_path_windows": "resources/icons/icon.ico"
+}
