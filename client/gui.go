@@ -37,47 +37,61 @@ func initGui() {
 			AppIconDefaultPath: "resources/icons/icon.png",
 		},
 		Debug: *debug,
-		MenuOptions: []*astilectron.MenuItemOptions{{
-			Label: astilectron.PtrStr("Menu"),
-			SubMenu: []*astilectron.MenuItemOptions{
-				{
-					Label: astilectron.PtrStr("About"),
-					OnClick: func(e astilectron.Event) (deleteListener bool) {
-						if err := bootstrap.SendMessage(w, "about", htmlAbout, func(m *bootstrap.MessageIn) {
-							// Unmarshal payload
-							var s string
-							if err := json.Unmarshal(m.Payload, &s); err != nil {
-								astilog.Error(errors.Wrap(err, "unmarshaling payload failed"))
-								return
+		MenuOptions: []*astilectron.MenuItemOptions{
+			{
+				Label: astilectron.PtrStr("Menu"),
+				SubMenu: []*astilectron.MenuItemOptions{
+					{
+						Label: astilectron.PtrStr("About"),
+						OnClick: func(e astilectron.Event) (deleteListener bool) {
+							if err := bootstrap.SendMessage(w, "about", htmlAbout, func(m *bootstrap.MessageIn) {
+								// Unmarshal payload
+								var s string
+								if err := json.Unmarshal(m.Payload, &s); err != nil {
+									astilog.Error(errors.Wrap(err, "unmarshaling payload failed"))
+									return
+								}
+								astilog.Infof("About modal has been displayed and payload is %s!", s)
+							}); err != nil {
+								astilog.Error(errors.Wrap(err, "sending about event failed"))
 							}
-							astilog.Infof("About modal has been displayed and payload is %s!", s)
-						}); err != nil {
-							astilog.Error(errors.Wrap(err, "sending about event failed"))
-						}
-						return
+							return
+						},
 					},
-				},
-				{
-					Label: astilectron.PtrStr("Debug"),
-					Role: astilectron.MenuItemRoleToggleDevTools,
-					OnClick: func(e astilectron.Event) (deleteListener bool) {
-						if err := bootstrap.SendMessage(w, "detach", "", func(m *bootstrap.MessageIn) {
-							// Unmarshal payload
-							var s string
-							if err := json.Unmarshal(m.Payload, &s); err != nil {
-								astilog.Error(errors.Wrap(err, "unmarshaling payload failed"))
-								return
+					{Type: astilectron.MenuItemTypeSeparator},
+					{
+						Label: astilectron.PtrStr("Debug"),
+						Role: astilectron.MenuItemRoleToggleDevTools,
+						OnClick: func(e astilectron.Event) (deleteListener bool) {
+							if err := bootstrap.SendMessage(w, "detach", "", func(m *bootstrap.MessageIn) {
+								// Unmarshal payload
+								var s string
+								if err := json.Unmarshal(m.Payload, &s); err != nil {
+									astilog.Error(errors.Wrap(err, "unmarshaling payload failed"))
+									return
+								}
+								astilog.Infof("About modal has been displayed and payload is %s!", s)
+							}); err != nil {
+								astilog.Error(errors.Wrap(err, "sending detach event failed"))
 							}
-							astilog.Infof("About modal has been displayed and payload is %s!", s)
-						}); err != nil {
-							astilog.Error(errors.Wrap(err, "sending detach event failed"))
-						}
-						return
+							return
+						},
 					},
+					{Role: astilectron.MenuItemRoleClose},
+					{Role: astilectron.MenuItemRoleQuit},
 				},
-				{Role: astilectron.MenuItemRoleClose},
 			},
-		}},
+			{
+				Label: astilectron.PtrStr("Edit"),
+				SubMenu: []*astilectron.MenuItemOptions{
+					{Role: astilectron.MenuItemRoleCopy},
+					{Role: astilectron.MenuItemRoleCut},
+					{Role: astilectron.MenuItemRolePaste},
+					{Role: astilectron.MenuItemRoleSelectAll},
+				},
+			},
+			{Role: astilectron.MenuItemRoleAbout},
+		},
 		OnWait: func(_ *astilectron.Astilectron, ws []*astilectron.Window, _ *astilectron.Menu, _ *astilectron.Tray, _ *astilectron.Menu) error {
 			w = ws[0]
 			go func() {
