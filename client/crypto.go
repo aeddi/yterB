@@ -5,51 +5,47 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha512"
-	"fmt"
-	"os"
+	"log"
 )
 
 // Generate RSA-2048 key pair
 func generateKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
 
-	clientPrivateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	private_key, err := rsa.GenerateKey(rand.Reader, 2048)
 
 	if err != nil {
-		fmt.Println("Error during key pair generation: ", err.Error)
-		os.Exit(1)
+		log.Fatal("Error during key pair generation: ", err.Error)
 	} else {
-		fmt.Println("Key pair generetad successfully")
+		log.Println("Key pair generetad successfully")
 	}
 
-	return clientPrivateKey, &clientPrivateKey.PublicKey
+	return private_key, &private_key.PublicKey
 }
 
 // Decrypt ciphertext using private key
-func decryptText(cipherTextMsg string, clientPrivateKey *rsa.PrivateKey) string {
+func decryptText(cipherTextMsg string, private_key *rsa.PrivateKey) string {
 
-	decryptedTextMsg, err := rsa.DecryptOAEP(sha512.New(), rand.Reader, clientPrivateKey, []byte(cipherTextMsg), []byte(""))
+	decrypted_text, err := rsa.DecryptOAEP(sha512.New(), rand.Reader, private_key, []byte(cipherTextMsg), []byte(""))
 
 	if err != nil {
-		fmt.Println("Error during plain text decryption: ", err.Error)
-		os.Exit(1)
+		log.Fatalln("Error during plain text decryption: ", err.Error)
 	}
 
-	return string(decryptedTextMsg)
+	return string(decrypted_text)
 }
 
 // Sign authentification code using private key
-func signAuthCode(authCode string, clientPrivateKey *rsa.PrivateKey) []byte {
+func signAuthCode(authCode string, private_key *rsa.PrivateKey) []byte {
 
 	hash := crypto.SHA512
 	pssh := hash.New()
 	pssh.Write([]byte(authCode))
 	hashed := pssh.Sum(nil)
 
-	signature, err := rsa.SignPSS(rand.Reader, clientPrivateKey, hash, hashed, &rsa.PSSOptions{})
+	signature, err := rsa.SignPSS(rand.Reader, private_key, hash, hashed, &rsa.PSSOptions{})
 
 	if err != nil {
-		fmt.Println("Error during authentification code signing: ", err.Error)
-		os.Exit(1)
+		log.Fatalln("Error during authentification code signing: ", err.Error)
 	}
 
 	return signature

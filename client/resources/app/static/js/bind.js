@@ -25,6 +25,7 @@ function openChat(clicked) {
     if ($(clicked).hasClass("active_contact") === false) {
         let active = $(".active_contact");
         let chat = $(".chat_history");
+		let chat_bar = $(".chat_bar");
         let data = contact_data[getContactIndexFromId($(clicked).attr("contact_id"))].data;
         let chat_placeholder = `
         <div class="chat_placeholder">
@@ -39,6 +40,7 @@ function openChat(clicked) {
             active.removeClass("active_contact");
         }
         chat.empty();
+		chat_bar.css("visibility", "visible");
         if (data === "") {
             chat.append(chat_placeholder);
         }

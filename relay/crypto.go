@@ -5,32 +5,30 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha512"
-	"fmt"
-	"os"
+	"log"
 )
 
 // Encrypt plain text using public key
-func encryptText(plainTextMsg string, clientPublicKey *rsa.PublicKey) string {
+func encryptText(plain_text string, public_key *rsa.PublicKey) string {
 
-	cipherTextMsg, err := rsa.EncryptOAEP(sha512.New(), rand.Reader, clientPublicKey, []byte(plainTextMsg), []byte(""))
+	cipher_text, err := rsa.EncryptOAEP(sha512.New(), rand.Reader, public_key, []byte(plain_text), []byte(""))
 
 	if err != nil {
-		fmt.Println("Error during plain text encryption: ", err.Error)
-		os.Exit(1)
+		log.Fatalln("Error during plain text encryption: ", err.Error)
 	}
 
-	return string(cipherTextMsg)
+	return string(cipher_text)
 }
 
 // Verify authentification code using public key
-func verifAuthCode(authCode string, clientPublicKey *rsa.PublicKey, signature []byte) bool {
+func verifAuthCode(authCode string, public_key *rsa.PublicKey, signature []byte) bool {
 
 	hash := crypto.SHA512
 	pssh := hash.New()
 	pssh.Write([]byte(authCode))
 	hashed := pssh.Sum(nil)
 
-	err := rsa.VerifyPSS(clientPublicKey, hash, hashed, signature, &rsa.PSSOptions{})
+	err := rsa.VerifyPSS(public_key, hash, hashed, signature, &rsa.PSSOptions{})
 
 	if err != nil {
 		return false

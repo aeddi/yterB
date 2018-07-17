@@ -65,6 +65,7 @@ function updateContact(data) {
 // Display placeholder if no contact is selected
 function noContactPlaceHolder() {
     let chat = $(".chat_history");
+	let chat_bar = $(".chat_bar");
     let chat_placeholder = `
     <div class="chat_placeholder">
         <img src="static/img/icon.png"></img>
@@ -72,6 +73,7 @@ function noContactPlaceHolder() {
     </div>
     `;
 
+	chat_bar.css("visibility", "hidden");
     chat.empty();
     chat.append(chat_placeholder);
 }
