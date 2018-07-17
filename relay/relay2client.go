@@ -8,19 +8,19 @@ import (
 	"log"
 )
 
-// Encrypt plain text using public key
+// Encrypt plain text using client public key
 func encryptText(plain_text string, public_key *rsa.PublicKey) string {
 
 	cipher_text, err := rsa.EncryptOAEP(sha512.New(), rand.Reader, public_key, []byte(plain_text), []byte(""))
 
 	if err != nil {
-		log.Fatalln("Error during plain text encryption: ", err.Error)
+		log.Fatalln("Error during plain text encryption: ", err)
 	}
 
 	return string(cipher_text)
 }
 
-// Verify authentification code using public key
+// Verify authentification code signature using client public key
 func verifAuthCode(authCode string, public_key *rsa.PublicKey, signature []byte) bool {
 
 	hash := crypto.SHA512

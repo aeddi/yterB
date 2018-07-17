@@ -14,7 +14,7 @@ func generateKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
 	private_key, err := rsa.GenerateKey(rand.Reader, 2048)
 
 	if err != nil {
-		log.Fatal("Error during key pair generation: ", err.Error)
+		log.Fatal("Error during key pair generation: ", err)
 	} else {
 		log.Println("Key pair generetad successfully")
 	}
@@ -28,7 +28,7 @@ func decryptText(cipherTextMsg string, private_key *rsa.PrivateKey) string {
 	decrypted_text, err := rsa.DecryptOAEP(sha512.New(), rand.Reader, private_key, []byte(cipherTextMsg), []byte(""))
 
 	if err != nil {
-		log.Fatalln("Error during plain text decryption: ", err.Error)
+		log.Fatalln("Error during plain text decryption: ", err)
 	}
 
 	return string(decrypted_text)
@@ -45,7 +45,7 @@ func signAuthCode(authCode string, private_key *rsa.PrivateKey) []byte {
 	signature, err := rsa.SignPSS(rand.Reader, private_key, hash, hashed, &rsa.PSSOptions{})
 
 	if err != nil {
-		log.Fatalln("Error during authentification code signing: ", err.Error)
+		log.Fatalln("Error during authentification code signing: ", err)
 	}
 
 	return signature
