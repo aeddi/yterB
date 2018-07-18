@@ -1,9 +1,16 @@
 // Bind html elements and javascript
 function bind() {
-    // Bind send message function
-    $( ".send_button" ).click(function() {
-        sendMessage();
+    // Bind name prompt
+    // $(".validate_button").click(sendUsernameToGo);
+    $(".username_input").keyup(function(e) {
+        var code = e.keyCode || e.which;
+        if(code == 13) { // Enter keycode
+            sendUsernameToGo();
+        }
     });
+
+    // Bind send message function
+    $( ".send_button" ).click(sendMessage);
     $(".chat_input").keyup(function(e) {
         var code = e.keyCode || e.which;
         if(code == 13) { // Enter keycode

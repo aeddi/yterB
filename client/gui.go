@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"strconv"
 
 	"github.com/asticode/go-astilectron"
 	"github.com/asticode/go-astilectron-bootstrap"
@@ -11,7 +12,7 @@ import (
 )
 
 // Constants
-const html_about = `Welcome on <b>Ytreb</b>!<br>
+const html_about = `Welcome on <b>ytreB</b>!<br>
 Developed by aeddi using libp2p, crypto and astilectron.`
 
 var (
@@ -22,7 +23,7 @@ var (
 	a       *astilectron.Astilectron
 )
 
-func initGui() {
+func main() {
 	// Init
 	flag.Parse()
 	astilog.FlagInit()
@@ -96,16 +97,6 @@ func initGui() {
 		OnWait: func(aa *astilectron.Astilectron, ws []*astilectron.Window, _ *astilectron.Menu, _ *astilectron.Tray, _ *astilectron.Menu) error {
 			w = ws[0]
 			a = aa
-			// go func() {
-			// var n = a.NewNotification(&astilectron.NotificationOptions{
-			// 	Body: "My Body",
-			// 	// HasReply: astilectron.PtrBool(true), // Only MacOSX
-			// 	// Icon: "../icon.png",
-			// 	// ReplyPlaceholder: "type your reply here", // Only MacOSX
-			// 	Title: "My title",
-			// })
-			// n.Show()
-			// }()
 			return nil
 		},
 		RestoreAssets: RestoreAssets,
@@ -127,23 +118,47 @@ func initGui() {
 
 // Handle messages sent from JS
 func handleMessages(_ *astilectron.Window, m bootstrap.MessageIn) (payload interface{}, err error) {
+
 	switch m.Name {
 	case "send_message":
-		// Unmarshal payload
-		var message string
-		if len(m.Payload) > 0 {
-			// Unmarshal payload
-			if err = json.Unmarshal(m.Payload, &message); err != nil {
-				payload = err.Error()
-				return
-			}
+		var decode Message
+		unquoted, _ := strconv.Unquote(string(m.Payload))
+		err := json.Unmarshal([]byte(unquoted), &decode)
+		if err != nil {
+			payload = err.Error()
+		} else {
+			requestAuthcode(decode)
+			payload = decode.Content
 		}
-
-		// if payload, err = explore(path); err != nil {
-		// 	payload = err.Error()
-		// 	return
-		// }
-		payload = message
+	case "username":
+		initClient(unmarshalPayload(m))
 	}
 	return
+}
+
+func addContactToGUI(client Client) {
+
+	bootstrap.SendMessage(w, "add_contact", marshalPayload(client), func(m *bootstrap.MessageIn) {
+		_ = m
+	})
+}
+
+// Unmarshal payload
+func unmarshalPayload(m bootstrap.MessageIn) (message string) {
+
+	if len(m.Payload) > 0 {
+		if err := json.Unmarshal(m.Payload, &message); err != nil {
+			message = err.Error()
+			return
+		}
+	}
+	return
+}
+
+// Marshal payload
+func marshalPayload(payload interface{}) string {
+
+	encoded, _ := json.Marshal(payload)
+
+	return string(encoded)
 }

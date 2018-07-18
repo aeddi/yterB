@@ -15,6 +15,27 @@ img {
 	z-index: 3;
 }
 
+/* Name prompt content */
+.name_prompt_panel {
+	width: 100vw;
+	height: 100vh;
+	background-color: #4e83d3;
+	z-index: 4;
+	float: left;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+	padding-top: 42vh;
+}
+.username_input {
+    font-size: 24px;
+    background-color: ivory;
+	color: #1C2027;
+	border-radius: 5%;
+	padding-left: 2%;
+	padding-right: 2%;
+}
+
 /* Left panel content */
 .left_panel {
     background: #f8f8f8 none repeat scroll 0 0;

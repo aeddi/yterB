@@ -50,7 +50,7 @@ func createTmpFolder() {
 	log.Println("Tmp folder created:", tmp_folder)
 }
 
-// Create a file in tmp folder containing an address
+// Create a file in tmp folder containing the host address
 func createAddressFile(filename string, address string) {
 
 	address_file = path.Join(tmp_folder, filename)

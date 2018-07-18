@@ -1,38 +1,63 @@
 package main
 
 import (
-	"crypto"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha512"
+	"bufio"
 	"log"
+
+	"gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
 )
 
-// Encrypt plain text using client public key
-func encryptText(plain_text string, public_key *rsa.PublicKey) string {
+var (
+	rcv_from_client = make(chan string)
+	send_to_client  []chan string
+	client_list     []Client
+)
 
-	cipher_text, err := rsa.EncryptOAEP(sha512.New(), rand.Reader, public_key, []byte(plain_text), []byte(""))
+// Function to handle incoming connection from client
+func handleClientStream(stream net.Stream) {
 
-	if err != nil {
-		log.Fatalln("Error during plain text encryption: ", err)
-	}
+	buff := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+	send_chan := make(chan string)
+	send_to_client = append(send_to_client, send_chan)
 
-	return string(cipher_text)
+	log.Println("Incoming connection from client", stream.Conn().RemotePeer().Pretty())
+
+	go receiveDataFromClient(buff, send_chan)
+	go sendDataToClient(buff, send_chan)
 }
 
-// Verify authentification code signature using client public key
-func verifAuthCode(authCode string, public_key *rsa.PublicKey, signature []byte) bool {
+// Goroutine that send data received from the stream to the command handler
+func receiveDataFromClient(buff *bufio.ReadWriter, response_chan chan string) {
 
-	hash := crypto.SHA512
-	pssh := hash.New()
-	pssh.Write([]byte(authCode))
-	hashed := pssh.Sum(nil)
+	for {
+		data, _ := buff.ReadString('\n')
+		unmarshalCommand(data, response_chan)
+	}
+}
 
-	err := rsa.VerifyPSS(public_key, hash, hashed, signature, &rsa.PSSOptions{})
+// Goroutine that write data received from a channel to the stream
+func sendDataToClient(buff *bufio.ReadWriter, send_chan chan string) {
 
-	if err != nil {
-		return false
-	} else {
-		return true
+	for {
+		data := <-send_chan
+
+		buff.WriteString(data)
+		buff.Flush()
+	}
+}
+
+// Send data to clients except ones in exceptions
+func broadCastToClients(data string, exceptions ...chan string) {
+
+	for _, client := range send_to_client {
+		skip := false
+		for _, exception := range exceptions {
+			if exception == client {
+				skip = true
+			}
+		}
+		if !skip {
+			client <- data
+		}
 	}
 }

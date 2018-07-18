@@ -9,9 +9,9 @@ import (
 )
 
 // Generate RSA-2048 key pair
-func generateKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
+func generateKeyPair() *rsa.PrivateKey {
 
-	private_key, err := rsa.GenerateKey(rand.Reader, 2048)
+	key_pair, err := rsa.GenerateKey(rand.Reader, 2048)
 
 	if err != nil {
 		log.Fatal("Error during key pair generation: ", err)
@@ -19,7 +19,7 @@ func generateKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
 		log.Println("Key pair generetad successfully")
 	}
 
-	return private_key, &private_key.PublicKey
+	return key_pair
 }
 
 // Decrypt ciphertext using private key

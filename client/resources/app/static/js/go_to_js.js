@@ -1,11 +1,12 @@
 // Append contact to contact list
 function addContact(contact) {
+	contact = JSON.parse(contact)
     let new_contact = `
-    <div class="contact" contact_id="` + contact.id + `" onclick="openChat(this)">
+    <div class="contact" contact_id="` + contact.Peer_id + `" onclick="openChat(this)">
         <div class="contact_box">
-            <div class="contact_avatar"><img src="https://api.adorable.io/avatars/285/` + contact.id + `.png"></div>
+            <div class="contact_avatar"><img src="https://api.adorable.io/avatars/285/` + contact.Peer_id + `.png"></div>
             <div class="contact_infos">
-                <h5>` + contact.name + `<span class="chat_date">New contact</span></h5>
+                <h5>` + contact.Name + `<span class="chat_date"><span style="font-weight: 700">New</span></span></h5>
                 <p>Click to start a conversation</p>
 				<div class="unread_dot"></div>
             </div>
@@ -13,14 +14,14 @@ function addContact(contact) {
     </div>`;
     $(new_contact).appendTo(".contact_list");
     setTimeout(function() {
-        $("div[contact_id='" + contact.id + "']").last().addClass("appended");
+        $("div[contact_id='" + contact.Peer_id + "']").last().addClass("appended");
     }, 300);
 
     // If contact does'nt already exist, add it to the list
-    if (getContactIndexFromId(contact.id) === -1) {
+    if (getContactIndexFromId(contact.Peer_id) === -1) {
         contact_data.push({
-            id: contact.id,
-            name: contact.name,
+            id: contact.Peer_id,
+            name: contact.Name,
             data: ""
         });
     }

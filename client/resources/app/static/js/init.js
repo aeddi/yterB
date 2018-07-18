@@ -27,7 +27,7 @@ let init = {
 			bind();
 			$(function() {
 				noContactPlaceHolder();
-				init.fakedata();
+				// init.fakedata();
 			});
 		})
 	},
@@ -58,13 +58,21 @@ let init = {
 		astilectron.onMessage(function(message) {
 			switch (message.name) {
 				case "about":
-				init.about(message.payload);
-				return {payload: "payload"};
-				break;
+					init.about(message.payload);
+					return {payload: "payload"};
+					break;
 				case "detach":
-				init.detach();
-				return {payload: "payload"};
-				break;
+					init.detach();
+					return {payload: "payload"};
+					break;
+				case "add_contact":
+					addContact(message.payload)
+					return {payload: "payload"};
+					break;
+				case "debug":
+					console.log("From go:", message.payload)
+					return {payload: "payload"};
+					break;
 			}
 		});
 	}

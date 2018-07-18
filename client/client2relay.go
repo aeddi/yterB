@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	rcv_from_relay = make(chan string)
-	send_to_relay  []chan string
+	send_to_relay []chan string
+	client        Client
+	client_list   []Client
 )
 
 // Function to handle incoming connection from relay

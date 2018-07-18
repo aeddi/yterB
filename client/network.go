@@ -17,8 +17,8 @@ import (
 	"gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
-// Generate RSA-2048 key pair
-func generateKeyPair() crypto.PrivKey {
+// Generate RSA-2048 key pair for P2P communication
+func generateKeyPairP2P() crypto.PrivKey {
 
 	private_key, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, rand.Reader)
 
@@ -32,35 +32,49 @@ func generateKeyPair() crypto.PrivKey {
 }
 
 // Check if TCP port is available before using it
-func checkIfPortIsAvailable(port int) {
+func checkIfPortIsAvailable(port int) bool {
 
 	listen, err := netstd.Listen("tcp4", ":"+strconv.Itoa(port))
 
-	if err != nil || port <= 1023 {
-		log.Fatalln("Error: you must specify an unused port greater than 1023 with -p flag\n", err)
+	if err != nil {
+		return false
 	}
 
-	log.Println("Port", port, "is available")
 	listen.Close()
+	return true
+}
+
+// Search an available TCP port by iterating from 1024 to 65535
+func getAvailablePort() string {
+
+	for port := 1024; port <= 65535; port++ {
+		if checkIfPortIsAvailable(port) {
+			return strconv.Itoa(port)
+		}
+	}
+
+	log.Fatalln("Error: unable to find an available TCP port")
+	return ""
 }
 
 // Create a libp2p host
 func createRelayHost(port string) host.Host {
 
-	private_key := generateKeyPair()
+	private_key_p2p := generateKeyPairP2P()
 	multi_addr, _ := multiaddr.NewMultiaddr("/ip4/0.0.0.0/tcp/" + port)
 	relay_host, err := libp2p.New(
 		context.Background(),
 		libp2p.ListenAddrs(multi_addr),
-		libp2p.Identity(private_key),
+		libp2p.Identity(private_key_p2p),
 	)
+	client.Peer_id = relay_host.ID().Pretty()
+	client.Address = multi_addr.String()
 
 	if err != nil {
 		log.Fatalln("Error during host creation", err)
 	}
 
-	createAddressFile(port, "/ip4/127.0.0.1/tcp/"+port+"/ipfs/"+relay_host.ID().Pretty())
-	log.Println("Relay host successfully created with id:", relay_host.ID().Pretty())
+	log.Println("Relay host successfully created with id:", client.Peer_id)
 	return relay_host
 }
 
@@ -69,24 +83,21 @@ func addAddrToPeerstore(relay_host host.Host, peer_address string) peer.ID {
 
 	multi_addr, err := multiaddr.NewMultiaddr(peer_address)
 	if err != nil {
-		log.Println("Error during peer multiaddress creation:", err)
-		removeAddressFile(1)
+		log.Fatalln("Error during peer multiaddress creation:", err)
 	}
 	peer_infos, err := multi_addr.ValueForProtocol(multiaddr.P_IPFS)
 	if err != nil {
-		log.Println("Error during peer infos obtention:", err)
-		removeAddressFile(1)
+		log.Fatalln("Error during peer infos obtention:", err)
 	}
 	peer_id, err := peer.IDB58Decode(peer_infos)
 	if err != nil {
-		log.Println("Error during peer ID decoding:", err)
-		removeAddressFile(1)
+		log.Fatalln("Error during peer ID decoding:", err)
 	}
 
 	target_addr, _ := multiaddr.NewMultiaddr(fmt.Sprintf("/ipfs/%s", peer.IDB58Encode(peer_id)))
 	target_addr_dec := multi_addr.Decapsulate(target_addr)
 
 	relay_host.Peerstore().AddAddr(peer_id, target_addr_dec, peerstore.PermanentAddrTTL)
-	log.Println("Peer ID added to peerstore", peer_id.Pretty())
+	log.Println("Relay peer ID added to peerstore")
 	return peer_id
 }
