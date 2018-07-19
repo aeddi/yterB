@@ -2,9 +2,9 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 const tmp_folder = "/tmp/ytreb"
@@ -15,10 +15,11 @@ func createTmpFolder() {
 	err := os.MkdirAll(tmp_folder, 0700)
 
 	if err != nil {
-		log.Fatalln("Error during tmp folder creation:", err)
+		consoleLog("Error during tmp folder creation: " + err.Error())
+		os.Exit(1)
 	}
 
-	log.Println("Tmp folder created:", tmp_folder)
+	consoleLog("Tmp folder created: " + tmp_folder)
 }
 
 // Return an array of addresses got from all files contained in tmp folder
@@ -40,9 +41,10 @@ func getAddressesFromFiles() []string {
 	})
 
 	if err != nil {
-		log.Fatalln("Error during port files listing:", err)
+		consoleLog("Error during port files listing: " + err.Error())
+		os.Exit(1)
 	}
 
-	log.Printf("Found %d other relay(s)\n", len(addresses))
+	consoleLog("Found " + strconv.Itoa(len(addresses)) + " other relay(s)")
 	return addresses
 }

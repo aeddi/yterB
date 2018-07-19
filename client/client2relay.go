@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"log"
 
 	"gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
 )
@@ -20,7 +19,7 @@ func handleRelayStream(stream net.Stream) {
 	send_chan := make(chan string)
 	send_to_relay = append(send_to_relay, send_chan)
 
-	log.Println("Incoming connection from relay", stream.Conn().RemotePeer().Pretty())
+	consoleLog("Incoming connection from relay " + stream.Conn().RemotePeer().Pretty())
 
 	go receiveDataFromRelay(buff, send_chan)
 	go sendDataToRelay(buff, send_chan)

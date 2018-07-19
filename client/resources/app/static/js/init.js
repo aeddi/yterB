@@ -27,7 +27,7 @@ let init = {
 			bind();
 			$(function() {
 				noContactPlaceHolder();
-				// init.fakedata();
+				init.fakedata();
 			});
 		})
 	},

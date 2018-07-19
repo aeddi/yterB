@@ -136,11 +136,22 @@ func handleMessages(_ *astilectron.Window, m bootstrap.MessageIn) (payload inter
 	return
 }
 
+// Marshal payload then send command
+func sendCommandToJS(header string, command interface{}) {
+
+	encoded, _ := json.Marshal(command)
+	bootstrap.SendMessage(w, header, string(encoded), func(m *bootstrap.MessageIn) { _ = m })
+}
+
+// Send command logs to javascript console
+func consoleLog(log interface{}) {
+
+	sendCommandToJS("debug", log)
+}
+
 func addContactToGUI(client Client) {
 
-	bootstrap.SendMessage(w, "add_contact", marshalPayload(client), func(m *bootstrap.MessageIn) {
-		_ = m
-	})
+	sendCommandToJS("add_contact", client)
 }
 
 // Unmarshal payload
@@ -153,12 +164,4 @@ func unmarshalPayload(m bootstrap.MessageIn) (message string) {
 		}
 	}
 	return
-}
-
-// Marshal payload
-func marshalPayload(payload interface{}) string {
-
-	encoded, _ := json.Marshal(payload)
-
-	return string(encoded)
 }

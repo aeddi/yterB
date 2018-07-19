@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"context"
 	"crypto/x509"
-	"log"
+	"os"
 )
 
 func initClient(name string) {
@@ -13,7 +13,8 @@ func initClient(name string) {
 	relay_addresses := getAddressesFromFiles()
 
 	if len(relay_addresses) == 0 {
-		log.Fatalln("Error: no relay available")
+		consoleLog("Error: no relay available")
+		os.Exit(1)
 	}
 
 	public_key, _ := x509.MarshalPKIXPublicKey(&key_pair.PublicKey)
@@ -32,11 +33,11 @@ func initClient(name string) {
 			send_chan := make(chan string)
 			send_to_relay = append(send_to_relay, send_chan)
 
-			log.Println("Connected to peer", peer_id.Pretty())
+			consoleLog("Connected to peer " + peer_id.Pretty())
 			go receiveDataFromRelay(buff, send_chan)
 			go sendDataToRelay(buff, send_chan)
 		} else {
-			log.Println("Can't connect to peer", peer_id.Pretty())
+			consoleLog("Can't connect to peer " + peer_id.Pretty())
 		}
 	}
 

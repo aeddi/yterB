@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 )
 
 type Command struct {
@@ -59,13 +60,28 @@ func unmarshalCommand(data string, response_chan chan string) {
 	case "authcode_request":
 		var request Authcode
 		json.Unmarshal([]byte(command.Command), &request)
-		authcodeResponse(request)
+		authcodeResponse(request, response_chan)
 	}
 }
 
-func authcodeResponse(request Authcode) {
+func generateRandomString(length int) string {
 
+	const charset = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+	random_str := make([]byte, length)
+
+	for i := range random_str {
+		random_str[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(random_str)
+}
+
+func authcodeResponse(request Authcode, response_chan chan string) {
+
+	request.Authcode = generateRandomString(64)
 	log.Println("Authcode request received from", request.Sender, "for message", request.MessageID)
+	log.Println("64 char long authcode generated:", request.Authcode)
+
+	response_chan <- marshalCommand("message_request", request)
 }
 
 func registerClient(client Client, response_chan chan string) {

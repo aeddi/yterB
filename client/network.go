@@ -4,8 +4,8 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
-	"log"
 	netstd "net"
+	"os"
 	"strconv"
 
 	"github.com/libp2p/go-libp2p"
@@ -23,10 +23,11 @@ func generateKeyPairP2P() crypto.PrivKey {
 	private_key, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, rand.Reader)
 
 	if err != nil {
-		log.Fatal("Error during key pair generation: ", err)
+		consoleLog("Error during key pair generation: " + err.Error())
+		os.Exit(1)
 	}
 
-	log.Println("Key pair generetad successfully")
+	consoleLog("Key pair generetad successfully")
 
 	return private_key
 }
@@ -53,7 +54,8 @@ func getAvailablePort() string {
 		}
 	}
 
-	log.Fatalln("Error: unable to find an available TCP port")
+	consoleLog("Error: unable to find an available TCP port")
+	os.Exit(1)
 	return ""
 }
 
@@ -71,10 +73,11 @@ func createRelayHost(port string) host.Host {
 	client.Address = multi_addr.String()
 
 	if err != nil {
-		log.Fatalln("Error during host creation", err)
+		consoleLog("Error during host creation " + err.Error())
+		os.Exit(1)
 	}
 
-	log.Println("Relay host successfully created with id:", client.Peer_id)
+	consoleLog("Relay host successfully created with id: " + client.Peer_id)
 	return relay_host
 }
 
@@ -83,21 +86,24 @@ func addAddrToPeerstore(relay_host host.Host, peer_address string) peer.ID {
 
 	multi_addr, err := multiaddr.NewMultiaddr(peer_address)
 	if err != nil {
-		log.Fatalln("Error during peer multiaddress creation:", err)
+		consoleLog("Error during peer multiaddress creation: " + err.Error())
+		os.Exit(1)
 	}
 	peer_infos, err := multi_addr.ValueForProtocol(multiaddr.P_IPFS)
 	if err != nil {
-		log.Fatalln("Error during peer infos obtention:", err)
+		consoleLog("Error during peer infos obtention: " + err.Error())
+		os.Exit(1)
 	}
 	peer_id, err := peer.IDB58Decode(peer_infos)
 	if err != nil {
-		log.Fatalln("Error during peer ID decoding:", err)
+		consoleLog("Error during peer ID decoding: " + err.Error())
+		os.Exit(1)
 	}
 
 	target_addr, _ := multiaddr.NewMultiaddr(fmt.Sprintf("/ipfs/%s", peer.IDB58Encode(peer_id)))
 	target_addr_dec := multi_addr.Decapsulate(target_addr)
 
 	relay_host.Peerstore().AddAddr(peer_id, target_addr_dec, peerstore.PermanentAddrTTL)
-	log.Println("Relay peer ID added to peerstore")
+	consoleLog("Relay peer ID added to peerstore")
 	return peer_id
 }

@@ -1,6 +1,8 @@
 // Append contact to contact list
 function addContact(contact) {
+	console.log(contact)
 	contact = JSON.parse(contact)
+	console.log(contact)
     let new_contact = `
     <div class="contact" contact_id="` + contact.Peer_id + `" onclick="openChat(this)">
         <div class="contact_box">

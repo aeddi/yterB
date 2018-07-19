@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/json"
-	"log"
 	"math/rand"
 )
 
@@ -61,10 +60,11 @@ func unmarshalCommand(data string, response_chan chan string) {
 		var client Client
 		json.Unmarshal([]byte(command.Command), &client)
 		registerClient(client)
+	case "message_request":
+		var response Authcode
+		json.Unmarshal([]byte(command.Command), &response)
+		sendMessage(response, response_chan)
 	}
-	////////////////////////////
-	_ = response_chan
-	////////////////////////////
 }
 
 // Register client in databse then add contact to the GUI
@@ -72,7 +72,7 @@ func registerClient(client Client) {
 
 	registered := false
 
-	log.Println("Command client_register received")
+	consoleLog("Command client_register received")
 	for _, client_registered := range client_list {
 		if client_registered.Peer_id == client.Peer_id {
 			registered = true
@@ -81,13 +81,20 @@ func registerClient(client Client) {
 	}
 
 	if registered {
-		log.Println("Client", client.Name, "registered already")
+		consoleLog("Client " + client.Name + " registered already")
 		return
 	} else {
 		client_list = append(client_list, client)
-		log.Println("Registering client with name:", client.Name)
+		consoleLog("Registering client with name: " + client.Name)
 		addContactToGUI(client)
 	}
+}
+
+func sendMessage(response Authcode, response_chan chan string) {
+
+	consoleLog("Authcode " + response.Authcode + " received for message " + response.MessageID)
+	// message :=
+	_ = response_chan
 }
 
 // Init message sending by requesting an auth code
@@ -101,6 +108,7 @@ func requestAuthcode(message Message) {
 	request.Sender = client.Peer_id
 
 	message_queue = append(message_queue, message)
+	consoleLog("Requesting authcode for message " + request.MessageID)
 
 	send_to_relay[rand.Intn(len(send_to_relay))] <- marshalCommand("authcode_request", request)
 }

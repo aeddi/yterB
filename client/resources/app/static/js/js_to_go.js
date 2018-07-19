@@ -9,12 +9,9 @@ function sendMessage() {
 		Recipient: id,
 	}
 	let test = JSON.stringify(payload)
-	console.log(test)
     $(".chat_input").val('')
     if (input) {
-        astilectron.sendMessage({name: "send_message", payload: test}, function(data) {
-            console.log("received " + data.payload)
-        });
+        astilectron.sendMessage({name: "send_message", payload: test}, function(data) {});
         let data = `
         <div class="sent_content">
             <div class="sent_message">
